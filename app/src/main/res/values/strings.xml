@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fuel</string>
+    <string name="widget_description">Shows the cheapest nearby fuel station and lets you navigate there with one tap.</string>
+</resources>
