@@ -1,16 +1,13 @@
-name: Build & Release
+name: Build
 
 on:
   push:
-    branches: [main]
-    tags: ['v*']
-  pull_request:
     branches: [main]
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build APK / AAB
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -27,42 +24,12 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build debug APK (PRs / manual)
-        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+      - name: Build debug APK
         run: gradle assembleDebug
 
-      - name: Upload debug APK
-        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
+          name: fuel-app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
-
-      - name: Decode keystore
-        if: github.event_name == 'push' && github.event_name != 'workflow_dispatch'
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > /tmp/release.jks
-
-      - name: Build release AAB (main / tags)
-        if: github.event_name == 'push' && github.event_name != 'workflow_dispatch'
-        env:
-          KEYSTORE_PATH: /tmp/release.jks
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: gradle bundleRelease
-
-      - name: Upload release AAB
-        if: github.event_name == 'push' && github.event_name != 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-aab
-          path: app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: app/build/outputs/bundle/release/app-release.aab
-          generate_release_notes: true
