@@ -33,6 +33,13 @@ class FuelViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(FuelUiState())
     val uiState: StateFlow<FuelUiState> = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            val saved = repository.loadSettings(getApplication())
+            _uiState.update { it.copy(settings = saved) }
+        }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -58,6 +65,9 @@ class FuelViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateSettings(settings: FuelSettings) {
         _uiState.update { it.copy(settings = settings) }
+        viewModelScope.launch {
+            repository.saveSettings(getApplication(), settings)
+        }
         refresh()
     }
 
