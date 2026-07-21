@@ -26,6 +26,8 @@ jobs:
 
       - name: Build release APK
         run: gradle assembleRelease
+        env:
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v7

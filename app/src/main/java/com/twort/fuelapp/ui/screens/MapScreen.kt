@@ -1,7 +1,5 @@
 package com.twort.fuelapp.ui.screens
 
-import android.graphics.drawable.Drawable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,28 +25,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import com.twort.fuelapp.data.model.FuelStation
 import com.twort.fuelapp.viewmodel.FuelViewModel
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,36 +56,22 @@ fun MapScreen(viewModel: FuelViewModel) {
 
     var selectedStation by remember { mutableStateOf<FuelStation?>(null) }
 
-    // Configure osmdroid before any MapView is created.
-    remember {
-        Configuration.getInstance().apply {
-            load(context, context.getSharedPreferences("osmdroid", 0))
-            userAgentValue = context.packageName
-        }
-    }
-
-    val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
-    val secondaryColor = MaterialTheme.colorScheme.tertiary.toArgb()
-
-    val mapView = remember {
-        MapView(context).apply {
-            setTileSource(TileSourceFactory.MAPNIK)
-            setMultiTouchControls(true)
-            controller.setZoom(13.0)
-        }
-    }
-
-    // Tie the MapView to the composition lifecycle.
-    DisposableEffect(Unit) {
-        mapView.onResume()
-        onDispose {
-            mapView.onPause()
-            mapView.onDetach()
-        }
-    }
-
-    // Center the map once, when we first have data to show.
+    val cameraPositionState = rememberCameraPositionState()
     var centered by remember { mutableStateOf(false) }
+
+    // Center the camera once, as soon as we have somewhere to point it.
+    LaunchedEffect(uiState.userLocation, uiState.stations) {
+        if (centered) return@LaunchedEffect
+        val target = uiState.userLocation
+            ?.let { LatLng(it.latitude, it.longitude) }
+            ?: uiState.stations.firstOrNull()
+                ?.takeIf { it.lat != null && it.lng != null }
+                ?.let { LatLng(it.lat!!, it.lng!!) }
+        if (target != null) {
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(target, 12f)
+            centered = true
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -117,59 +100,38 @@ fun MapScreen(viewModel: FuelViewModel) {
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            AndroidView(
-                factory = { mapView },
+            GoogleMap(
                 modifier = Modifier.fillMaxSize(),
-                update = { map ->
-                    map.overlays.clear()
-
-                    uiState.stations.forEachIndexed { index, station ->
-                        val lat = station.lat
-                        val lng = station.lng
-                        if (lat != null && lng != null) {
-                            val marker = Marker(map).apply {
-                                position = GeoPoint(lat, lng)
-                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                                title = "${station.priceCpl.roundToInt()}¢/L · " +
-                                    station.brand.ifBlank { station.name }
-                                snippet = station.address
-                                icon = tintedMarker(
-                                    map,
-                                    if (index == 0) primaryColor else secondaryColor,
-                                )
-                                relatedObject = station
-                                setOnMarkerClickListener { m, _ ->
-                                    selectedStation = m.relatedObject as? FuelStation
-                                    map.controller.animateTo(m.position)
-                                    true
-                                }
-                            }
-                            map.overlays.add(marker)
-                        }
+                cameraPositionState = cameraPositionState,
+                // userLocation is only non-null once the permission has been granted,
+                // so it doubles as a safe guard for enabling the my-location layer.
+                properties = MapProperties(isMyLocationEnabled = uiState.userLocation != null),
+                onMapClick = { selectedStation = null },
+            ) {
+                uiState.stations.forEachIndexed { index, station ->
+                    val lat = station.lat
+                    val lng = station.lng
+                    if (lat != null && lng != null) {
+                        Marker(
+                            state = rememberMarkerState(
+                                key = station.name + station.address,
+                                position = LatLng(lat, lng),
+                            ),
+                            title = "${station.priceCpl.roundToInt()}¢/L · " +
+                                station.brand.ifBlank { station.name },
+                            snippet = station.address,
+                            icon = BitmapDescriptorFactory.defaultMarker(
+                                if (index == 0) BitmapDescriptorFactory.HUE_GREEN
+                                else BitmapDescriptorFactory.HUE_ORANGE,
+                            ),
+                            onClick = {
+                                selectedStation = station
+                                true
+                            },
+                        )
                     }
-
-                    uiState.userLocation?.let { loc ->
-                        val here = GeoPoint(loc.latitude, loc.longitude)
-                        if (!centered) {
-                            map.controller.setCenter(here)
-                            centered = true
-                        }
-                    }
-                    if (!centered) {
-                        uiState.stations.firstOrNull()
-                            ?.let { s ->
-                                val lat = s.lat
-                                val lng = s.lng
-                                if (lat != null && lng != null) {
-                                    map.controller.setCenter(GeoPoint(lat, lng))
-                                    centered = true
-                                }
-                            }
-                    }
-
-                    map.invalidate()
-                },
-            )
+                }
+            }
 
             selectedStation?.let { station ->
                 SelectedStationCard(
@@ -183,16 +145,6 @@ fun MapScreen(viewModel: FuelViewModel) {
             }
         }
     }
-}
-
-private fun tintedMarker(map: MapView, color: Int): Drawable {
-    val base = ContextCompat.getDrawable(
-        map.context,
-        org.osmdroid.library.R.drawable.marker_default,
-    )!!.mutate()
-    val wrapped = DrawableCompat.wrap(base)
-    DrawableCompat.setTint(wrapped, color)
-    return wrapped
 }
 
 @Composable

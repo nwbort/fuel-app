@@ -12,8 +12,16 @@ android {
         applicationId = "com.twort.fuelapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
+
+        // Google Maps API key, supplied at build time via -PMAPS_API_KEY=... or the
+        // MAPS_API_KEY environment variable (a GitHub Actions secret in CI). Left blank
+        // for local builds, in which case the basemap renders empty but the app still runs.
+        val mapsApiKey = (project.findProperty("MAPS_API_KEY") as String?)
+            ?: System.getenv("MAPS_API_KEY")
+            ?: ""
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -70,7 +78,8 @@ dependencies {
     implementation(libs.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.play.services)
 
-    implementation(libs.osmdroid.android)
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
 
     debugImplementation(libs.androidx.ui.tooling)
 }
