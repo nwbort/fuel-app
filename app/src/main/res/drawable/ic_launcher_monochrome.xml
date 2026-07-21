@@ -4,53 +4,59 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- hose -->
-    <path
-        android:pathData="M72,46 C83,46 86,50 86,57 L86,66 C86,71 83,74 78,74"
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="5"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <!-- nozzle -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M69,70 L80,70 C82,70 83,71.5 82,73.5 L77,84 C76,86 73,86 72,84 L67,73.5 C66,71.5 67,70 69,70 Z" />
-    <!-- pump body -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M44,26 L64,26 C68.4,26 72,29.6 72,34 L72,76 C72,80.4 68.4,84 64,84 L44,84 C39.6,84 36,80.4 36,76 L36,34 C36,29.6 39.6,26 44,26 Z" />
-    <!-- screen -->
-    <path
-        android:fillColor="#000000"
-        android:fillAlpha="0.55"
-        android:pathData="M45.5,32 L62.5,32 C64.43,32 66,33.57 66,35.5 L66,43.5 C66,45.43 64.43,47 62.5,47 L45.5,47 C43.57,47 42,45.43 42,43.5 L42,35.5 C42,33.57 43.57,32 45.5,32 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M46.2,36.8 L63,36.8 L63,39.2 L46.2,39.2 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M46.2,41.2 L58,41.2 L58,43.6 L46.2,43.6 Z" />
-    <!-- keypad dots -->
-    <path
-        android:fillColor="#000000"
-        android:fillAlpha="0.55"
-        android:pathData="M44.5,54 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
-    <path
-        android:fillColor="#000000"
-        android:fillAlpha="0.55"
-        android:pathData="M54,54 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
-    <path
-        android:fillColor="#000000"
-        android:fillAlpha="0.55"
-        android:pathData="M63.5,54 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
-    <!-- base slots -->
-    <path
-        android:fillColor="#000000"
-        android:fillAlpha="0.55"
-        android:pathData="M44,63 L64,63 C65.1,63 66,63.9 66,65 C66,66.1 65.1,67 64,67 L44,67 C42.9,67 42,66.1 42,65 C42,63.9 42.9,63 44,63 Z" />
-    <path
-        android:fillColor="#000000"
-        android:fillAlpha="0.55"
-        android:pathData="M44,70 L64,70 C65.1,70 66,70.9 66,72 C66,73.1 65.1,74 64,74 L44,74 C42.9,74 42,73.1 42,72 C42,70.9 42.9,70 44,70 Z" />
+    <!-- Glyph bounding box (hose+nozzle+pump) isn't symmetric about the 108 viewport,
+         so the whole group is nudged left/up to sit visually centered. -->
+    <group
+        android:translateX="-8.25"
+        android:translateY="-1.75">
+        <!-- hose -->
+        <path
+            android:pathData="M72,46 C83,46 86,50 86,57 L86,66 C86,71 83,74 78,74"
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="5"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <!-- nozzle -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M69,70 L80,70 C82,70 83,71.5 82,73.5 L77,84 C76,86 73,86 72,84 L67,73.5 C66,71.5 67,70 69,70 Z" />
+        <!-- pump body -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M44,26 L64,26 C68.4,26 72,29.6 72,34 L72,76 C72,80.4 68.4,84 64,84 L44,84 C39.6,84 36,80.4 36,76 L36,34 C36,29.6 39.6,26 44,26 Z" />
+        <!-- screen -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.55"
+            android:pathData="M45.5,32 L62.5,32 C64.43,32 66,33.57 66,35.5 L66,43.5 C66,45.43 64.43,47 62.5,47 L45.5,47 C43.57,47 42,45.43 42,43.5 L42,35.5 C42,33.57 43.57,32 45.5,32 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M46.2,36.8 L63,36.8 L63,39.2 L46.2,39.2 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M46.2,41.2 L58,41.2 L58,43.6 L46.2,43.6 Z" />
+        <!-- keypad dots -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.55"
+            android:pathData="M44.5,54 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.55"
+            android:pathData="M54,54 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.55"
+            android:pathData="M63.5,54 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+        <!-- base slots -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.55"
+            android:pathData="M44,63 L64,63 C65.1,63 66,63.9 66,65 C66,66.1 65.1,67 64,67 L44,67 C42.9,67 42,66.1 42,65 C42,63.9 42.9,63 44,63 Z" />
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.55"
+            android:pathData="M44,70 L64,70 C65.1,70 66,70.9 66,72 C66,73.1 65.1,74 64,74 L44,74 C42.9,74 42,73.1 42,72 C42,70.9 42.9,70 44,70 Z" />
+    </group>
 </vector>
