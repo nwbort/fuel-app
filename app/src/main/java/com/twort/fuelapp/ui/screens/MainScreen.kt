@@ -26,12 +26,14 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Navigation
+import androidx.compose.material.icons.rounded.NearMe
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,10 +74,24 @@ fun MainScreen(viewModel: FuelViewModel) {
     val context = LocalContext.current
     var showSettings by remember { mutableStateOf(false) }
 
+    // The list is ordered by price, so the physically closest station is a separate pick.
+    val nearest = remember(uiState.stations) {
+        uiState.stations.minByOrNull { it.distanceKm }
+    }
+
     val scrollBehavior = androidx.compose.material3.TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        floatingActionButton = {
+            nearest?.let { station ->
+                ExtendedFloatingActionButton(
+                    onClick = { navigateTo(context, station) },
+                    icon = { Icon(Icons.Rounded.NearMe, contentDescription = null) },
+                    text = { Text("Nearest · ${"%.1f".format(station.distanceKm)} km") },
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {

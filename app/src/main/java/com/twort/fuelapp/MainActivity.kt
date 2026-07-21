@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.twort.fuelapp.ui.screens.MainScreen
+import com.twort.fuelapp.ui.screens.FuelApp
 import com.twort.fuelapp.ui.theme.FuelAppTheme
 import com.twort.fuelapp.viewmodel.FuelViewModel
 
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    MainScreen(viewModel = viewModel)
+                    FuelApp(viewModel = viewModel)
                 }
             }
         }
