@@ -5,11 +5,12 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Glyph bounding box (hose+nozzle+pump) isn't symmetric about the 108 viewport,
-         so the whole group is nudged left/up to sit visually centered. -->
+    <!-- The hose+nozzle+pump glyph's visual mass isn't centered on the 108 viewport,
+         so the whole group is nudged to sit centered by center-of-mass, not bounding box
+         (bbox-centering overweights the thin hose against the solid pump body). -->
     <group
-        android:translateX="-8.25"
-        android:translateY="-1.75">
+        android:translateX="-3.5"
+        android:translateY="-2.25">
         <!-- hose -->
         <path
             android:pathData="M72,46 C83,46 86,50 86,57 L86,66 C86,71 83,74 78,74"
