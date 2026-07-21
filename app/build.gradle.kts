@@ -12,8 +12,8 @@ android {
         applicationId = "com.twort.fuelapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
 
         // Google Maps API key, supplied at build time via -PMAPS_API_KEY=... or the
         // MAPS_API_KEY environment variable (a GitHub Actions secret in CI). Left blank
@@ -24,6 +24,22 @@ android {
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
+    // Release signing key, supplied in CI by decoding the KEYSTORE_BASE64 secret to a
+    // file and pointing KEYSTORE_FILE at it. When absent (local builds), release falls
+    // back to the debug key so `assembleRelease` still works without any setup.
+    val keystoreFile = System.getenv("KEYSTORE_FILE")
+    val hasReleaseSigning = keystoreFile != null && file(keystoreFile).exists()
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(keystoreFile!!)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -32,7 +48,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
